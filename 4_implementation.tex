@@ -1,0 +1,115 @@
+\section{StrongBox Implementation}\label{sec:implementation}
+
+Our implementation of StrongBox is comprised of 5000 lines of C code. StrongBox
+uses OpenSSL version 1.0.2 and LibSodium version 1.0.12 for its ChaCha20,
+Argon2, Blake2, and AES-XTS implementations, likewise implemented in C. The
+SHA-256 Merkle Tree implementation is borrowed from the Secure Block Device
+library~\cite{SBD}. StrongBox's implementation is available as
+open-source.\footnote{\StrongBoxURI}
+
+To reduce the complexity of the experimental setup, establish a fair baseline,
+and allow StrongBox to run in user space, we use a BUSE~\cite{BUSE} virtual
+block device. BUSE is a thin (200 LOC) wrapper around the standard Linux Network
+Block Device (NBD), which allows a machine to serve requests for reads and
+writes to virtual block devices exposed via domain socket. We built StrongBox on
+top of BUSE/NBD because a simple block device in user space allows for quick
+experimentation and rapid prototyping. It is not required for a proper
+implementation.
+
+\subsection{Deriving Subkeys}
+The cryptographic driver requires a shared master secret. The
+derivation of this master secret is implementation specific and has no
+impact on performance as it is completed during StrongBox's
+initialization. Our implementation uses the Argon2 KDF to derive a
+master secret from a given password with an acceptable time-memory
+trade-off.
+
+% Describe deriving the nugget keys from the master secret
+To assign each nugget its own unique keystream, that nugget requires a
+unique key and associated nonce. We derive these nugget subkeys from
+the master secret during StrongBox's initialization. To guarantee the
+backing store's integrity, each flake is tagged with a MAC. We use
+Poly1305, accepting a 32-byte one-time key and a plaintext of
+arbitrary length to generate tags. These one-time flake subkeys are
+derived from their respective nugget subkeys.
+
+\subsection{A Secure, Persistent, Monotonic Counter} 
+Our target platform uses an embedded Multi-Media Card (eMMC) as a
+backing store. In addition to boot and user data partitions, the eMMC
+standard includes a secure storage partition called a Replay Protected
+Memory Block (RPMB)~\cite{eMMC-standard}. The RPMB partition's size
+is configurable to be at most 16MB (32MB on some Samsung
+devices)~\cite{RPMB}. All read and write commands issued to the RPMB
+must be authenticated by a key burned into write-once storage
+(typically eFUSE) during some one-time, secure initialization process.
+
+To implement rollback protection on top of the RPMB, the key for
+authenticating RPMB commands can be contained in TEE sealed storage or
+derived from the TPM. For this implementation, StrongBox requires
+interaction with TPM/TEE secure storage only at mount time, where the
+authentication key can be retrieved and cached for the duration of
+StrongBox's lifetime. With the cached key on hand, our implementation
+makes traditional IOCTL calls to read and write global version counter
+data to the RPMB eMMC partition, enforcing the invariant that it only
+increase monotonically.
+
+Our design is not dependent on the eMMC standard, however. Trusted
+hardware mechanisms other than the eMMC RPMB partition, including
+TPMs, support secure, persistent storage and/or monotonic counters
+directly. These can be adapted for use with StrongBox just as well.
+
+There are two practical concerns we must address while implementing
+the secure counter: wear and performance overhead. Wear is a concern
+because the counter is implemented in non-volatile storage. The RPMB
+implements all the same wear protection mechanisms that are used to
+store user-data~\cite{eMMC-standard}. Additionally, StrongBox writes
+to the global version counter once per write to user-data. Given that
+the eMMC implements the same wear protection for the RPMB and user
+data, and that the ratio of writes to these areas is 1:1, we expect
+StrongBox places no additional wear burden on the hardware. Further,
+with the JEDEC spec suggesting RPMB implementations use more durable
+and faster single-level NAND flash cells rather than cheaper and
+slower multi-level NAND flash cells \cite{eMMC-standard,RPMB}, the
+RPMB partition will likely outlive and outperform the user-data
+portion of the eMMC.
+
+In terms of performance overhead, updating the global version counter
+requires making one 64-bit authenticated write per user-data write. As
+user-data writes are almost always substantially larger, we see no
+significant overhead from the using the RPMB to store the secure
+counter.
+
+\subsection{LFS Garbage Collection}
+
+An LFS attempts to write to a drive sequentially in an append-only fashion, as
+if writing to a log. This requires large amounts of contiguous space, called
+\emph{segments}. Since any backing store is necessarily finite, an LFS can only
+append so much data before it runs out of space. When this occurs, the LFS
+triggers a \emph{segment cleaning algorithm} to erase outdated data and
+compress the remainder of the log into as few segments as
+possible~\cite{LFS,F2FS}. This procedure is known more broadly as \emph{garbage
+collection}~\cite{F2FS}.
+
+In the context of StrongBox, garbage collection could potentially incur high
+overhead. The procedure itself would, with its every write, require a rekeying
+of any affected nuggets. Worse, every proceeding write would appear to StrongBox
+as if it were an overwrite, since there is no way for StrongBox to know that the
+LFS triggered garbage collection internally.
+
+In practice, modern production LFSes are optimized to perform garbage collection
+as few times as possible~\cite{F2FS}. Further, they often perform garbage
+collection in a background thread that triggers when the filesystem is idle and
+only perform expensive on-demand garbage collection when the backing store is
+nearing capacity~\cite{F2FS, NILFS}. We leave garbage collection turned on for
+all of our tests and see no substantial performance degradation from this
+process because it is scheduled not to interfere with user I/O.
+
+\subsection{Overhead}
+
+StrongBox stores metadata on the drive it is encrypting (see
+\figref{backstore}). This metadata should be small compared to the user data.
+Our implementation uses 4KB flakes, 256 flakes/nugget, and 1024 nuggets per GB
+of user data. Given the flake and nugget overhead, this configuration requires
+just over 40KB of metadata per 1 GB of user data. There is an additional, single
+static header that requires just over 200 bytes. \emph{Thus StrongBox's overhead
+in terms of storage is less than one hundredth of a percent.}

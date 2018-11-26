@@ -1,0 +1,158 @@
+This is BibTeX, Version 0.99d (TeX Live 2015/Debian)
+Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
+The top-level auxiliary file: acmart-sigplanproc-template.aux
+The style file: ACM-Reference-Format.bst
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated wiz_functions (elt_size=4) to 6000 items from 3000.
+Database file #1: refs.bib
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Warning--no key, author in XTS
+Warning--no author, editor, organization, or key in XTS
+Warning--to sort, need author or key in XTS
+Warning--no key, author in NISTXTS
+Warning--no author, editor, organization, or key in NISTXTS
+Warning--to sort, need author or key in NISTXTS
+Warning--no key, author in google-blog
+Warning--no author, editor, organization, or key in google-blog
+Warning--to sort, need author or key in google-blog
+Warning--no key, author in eMMC-standard
+Warning--no author, editor, organization, or key in eMMC-standard
+Warning--to sort, need author or key in eMMC-standard
+Warning--no key, author in dmcrypt
+Warning--no author, editor, organization, or key in dmcrypt
+Warning--to sort, need author or key in dmcrypt
+Warning--no key, author in MAC
+Warning--no author, editor, organization, or key in MAC
+Warning--to sort, need author or key in MAC
+Warning--no key, author in BUSE
+Warning--no author, editor, organization, or key in BUSE
+Warning--to sort, need author or key in BUSE
+Warning--no key, author in LinuxDeviceMapper
+Warning--no author, editor, organization, or key in LinuxDeviceMapper
+Warning--to sort, need author or key in LinuxDeviceMapper
+Warning--no key, author in DmC-Android
+Warning--no author, editor, organization, or key in DmC-Android
+Warning--to sort, need author or key in DmC-Android
+Warning--no key, author in ZFS
+Warning--no author, editor, organization, or key in ZFS
+Warning--to sort, need author or key in ZFS
+Reallocated glb_str_ptr (elt_size=4) to 20 items from 10.
+Reallocated global_strs (elt_size=20001) to 20 items from 10.
+Reallocated glb_str_end (elt_size=4) to 20 items from 10.
+Warning--no key, author in BUSE
+Warning--no key, author in BUSE
+Warning--no key, author in dmcrypt
+Warning--no key, author in dmcrypt
+Warning--no key, author in DmC-Android
+Warning--no key, author in DmC-Android
+Warning--no key, author in eMMC-standard
+Warning--no key, author in eMMC-standard
+Warning--no key, author in google-blog
+Warning--no key, author in google-blog
+Warning--no key, author in LinuxDeviceMapper
+Warning--no key, author in LinuxDeviceMapper
+Warning--no key, author in MAC
+Warning--no key, author in MAC
+Warning--no key, author in NISTXTS
+Warning--no key, author in NISTXTS
+Warning--no key, author in XTS
+Warning--no key, author in XTS
+Warning--no key, author in ZFS
+Warning--no key, author in ZFS
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Warning--no key, author in DmC-Android
+Warning--no author, editor, organization, or key in DmC-Android
+Warning--empty author in DmC-Android
+Warning--empty year in DmC-Android
+Warning--no key, author in LinuxDeviceMapper
+Warning--no author, editor, organization, or key in LinuxDeviceMapper
+Warning--empty author in LinuxDeviceMapper
+Warning--empty year in LinuxDeviceMapper
+Warning--no key, author in ZFS
+Warning--no author, editor, organization, or key in ZFS
+Warning--empty author in ZFS
+Warning--no key, author in XTS
+Warning--no author, editor, organization, or key in XTS
+Warning--empty author in XTS
+Warning--no key, author in NISTXTS
+Warning--no author, editor, organization, or key in NISTXTS
+Warning--empty author in NISTXTS
+Warning--no key, author in MAC
+Warning--no author, editor, organization, or key in MAC
+Warning--empty author in MAC
+Warning--no key, author in BUSE
+Warning--no author, editor, organization, or key in BUSE
+Warning--empty author in BUSE
+Warning--no key, author in dmcrypt
+Warning--no author, editor, organization, or key in dmcrypt
+Warning--empty author in dmcrypt
+Warning--no key, author in google-blog
+Warning--no author, editor, organization, or key in google-blog
+Warning--empty author in google-blog
+Warning--no key, author in eMMC-standard
+Warning--no author, editor, organization, or key in eMMC-standard
+Warning--empty author in eMMC-standard
+Warning--empty publisher in asplos1
+Warning--empty address in asplos1
+Warning--can't use both author and editor fields in CMC
+Warning--empty publisher in SBD
+Warning--empty address in SBD
+Warning--empty publisher in asplos3
+Warning--empty address in asplos3
+Warning--numpages field, but no articleno or eid field, in Kirovski
+Warning--numpages field, but no articleno or eid field, in NILFS
+Warning--empty publisher in asplos4
+Warning--empty address in asplos4
+Warning--empty publisher in RPMB
+Warning--empty address in RPMB
+Warning--numpages field, but no articleno or eid field, in LFS
+Warning--empty publisher in isca2
+Warning--empty address in isca2
+Warning--empty publisher in isca1
+Warning--empty address in isca1
+Warning--numpages field, but no articleno or eid field, in CSAIL-TPM
+Warning--can't use both author and editor fields in HCTR
+Warning--empty publisher in asplos2
+Warning--empty address in asplos2
+You've used 34 entries,
+            5795 wiz_defined-function locations,
+            1550 strings with 22591 characters,
+and the built_in function-call counts, 41851 in all, are:
+= -- 4869
+> -- 1096
+< -- 0
++ -- 374
+- -- 852
+* -- 3100
+:= -- 3885
+add.period$ -- 168
+call.type$ -- 34
+change.case$ -- 220
+chr.to.int$ -- 34
+cite$ -- 178
+duplicate$ -- 3389
+empty$ -- 2424
+format.name$ -- 432
+if$ -- 9297
+int.to.chr$ -- 2
+int.to.str$ -- 1
+missing$ -- 74
+newline$ -- 370
+num.names$ -- 192
+pop$ -- 1419
+preamble$ -- 1
+purify$ -- 510
+quote$ -- 0
+skip$ -- 1178
+stack$ -- 0
+substring$ -- 4560
+swap$ -- 309
+text.length$ -- 978
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 934
+warning$ -- 104
+while$ -- 191
+width$ -- 0
+write$ -- 676
+(There were 104 warnings)

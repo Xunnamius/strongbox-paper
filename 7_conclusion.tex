@@ -1,0 +1,20 @@
+\section{Conclusion} \label{sec:conclusion}
+
+The conventional wisdom is that securing data at rest requires one must pay the
+high performance overhead of encryption with AES is XTS mode. This paper shows
+that technological trends overturn this conventional wisdom: Log-structured file
+systems and hardware support for secure counters make it practical to use a
+stream cipher to secure data at rest. We demonstrate this practicality through
+our implementation of StrongBox which uses the ChaCha20 stream cipher and the
+Poly1305 MAC to provide secure storage and can be used as a drop-in replacement
+for dm-crypt.
+
+Our empirical results show that under F2FS---a modern, industrial-strength
+Log-structured file system---StrongBox provides upwards of $2\times$ improvement
+on read performance and average $1.27\times$ improvement on write performance
+compared to dm-crypt. Further, our results show that F2FS plus StrongBox
+provides a higher performance replacement for Ext4 backed with dm-crypt. We make
+our implementation of StrongBox available open source so that others can extend
+it or compare to it.\footnote{\StrongBoxURI} Our hope is that this work
+motivates further exploration of fast stream ciphers as replacements for AES-XTS
+for securing data at rest.

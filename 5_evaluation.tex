@@ -1,0 +1,408 @@
+\section{Evaluation}\label{sec:evaluation}
+
+\subsection{Experimental Setup}
+
+We implement a prototype of StrongBox on a Hardkernel Odroid XU3 ARM big.LITTLE
+system (Samsung Exynos5422 A15 and A7 quad core CPUs, 2Gbyte LPDDR3 RAM at 933
+MHz, eMMC5.0 HS400 backing store) running Ubuntu Trusty 14.04 LTS, kernel
+version 3.10.58. The maximum theoretical memory bandwidth for this model is
+14.9GB/s\@. Observed maximum memory bandwidth is 4.5GB/s.
+
+\subsection{Experimental Methodology}
+
+In this section we seek to answer three questions:
+\begin{enumerate}
+\item What is StrongBox's overhead when compared to dm-crypt AES-XTS?
+\item How does StrongBox under an LFS (\ie F2FS) configuration compare to
+the popular dm-crypt under Ext4 configuration?
+\item Where does StrongBox derive its performance gains? Implementation? Choice
+of cipher?
+%\item How does StrongBox perform when the backing store is nearly full?
+\end{enumerate}
+
+To evaluate StrongBox's performance, we measure the latency
+(seconds/milliseconds per operation) of both sequential and random
+read and write I/O operations across four different standard Linux
+filesystems: NILFS2, F2FS, Ext4 in ordered journaling mode, and Ext4
+in full journaling mode. The I/O operations are performed using file
+sizes between 4KB and 40MB. These files were populated with random
+data. The experiments are performed using a 1GB standard Linux ramdisk
+(tmpfs) as the ultimate backing store.
+
+For sequential F2FS specifically, we include latency measurements dealing
+with a file size $2.5\times$ the size of available DRAM, \ie
+5GB, supported by a distinct tmpfs backing store swapped into memory.
+
+Ext4's default is ordered journaling mode (\texttt{data=ordered}),
+where metadata is committed to the filesystem's journal while the
+actual data is written through to the main filesystem. Given a crash,
+the filesystem uses the journal to avoid damage and recover to a
+consistent state. Full journaling mode (\texttt{data=journal})
+journals both metadata and the filesystem's actual data---essentially
+a double write-back for each write operation. Given a crash, the
+journal can replay entire I/O events so that both the filesystem and
+its data can be recovered. We include both modes of Ext4 to further
+explore the impact of frequent overwrites against StrongBox.
+
+The experiment consists of reading and writing each file in its
+entirety 30 times sequentially, and then reading and writing random
+portions of each file 30 times. In both cases, the same amount of data
+is read and written per file. The median latency is taken per result
+set. We chose 30 read/write operations (10 read/write operations
+repeated three times each) to handle potential variation. The Linux
+page cache is dropped before every read operation, each file is
+opened in synchronous I/O mode via \texttt{O\_SYNC}, and we rely on
+non-buffered \texttt{read()}/\texttt{write()} system calls. A
+high-level I/O size of 128KB was used for all read and write calls
+that hit the filesystems; however, the I/O requests being made at the
+block device layer varied between 4KB and 128KB depending on the
+filesystem under test.
+
+The experiment is repeated on each filesystem in three different
+configurations:
+\begin{enumerate}
+\item \textit{unencrypted}: Filesystem mounted atop a BUSE virtual block
+  device set up to immediately pass through any incoming I/O requests straight
+  to the backing store. We use this as the baseline measurement of the
+  filesystem's performance without any encryption.
+\item \textit{StrongBox}: Filesystem mounted atop a BUSE virtual block
+  device provided by our StrongBox implementation to perform full-drive
+  encryption.
+\item \textit{dm-crypt}: Filesystem mounted atop a Device Mapper
+ ~\cite{LinuxDeviceMapper} higher-level virtual block device provided by
+  dm-crypt to perform full-drive encryption, which itself is mounted atop a
+  BUSE virtual block device with pass through behavior identical to the device
+  used in the baseline configuration. dm-crypt was configured to use AES-XTS as
+  its full-drive encryption algorithm. All other parameters were left at their
+  default values.
+\end{enumerate}
+
+\figref{microbench-f2fs} compares StrongBox to dm-crypt under the F2FS
+filesystem. The gamut of result sets over different filesystems can
+be seen in \figref{microbench-gamut}. \figref{microbench-ext4}
+compares Ext4 with dm-crypt to F2FS with StrongBox.
+
+\begin{figure}[ht]
+    \textbf{StrongBox vs dm-crypt AES-XTS: F2FS Test}\par\medskip
+    \begin{subfigure}{\linewidth}
+        \centering
+        {\input{img/microbench-f2fs-sequential.tex}}
+        \caption{Sequential I/O expanded F2FS result set.}\label{fig:microbench-f2fs-sequential}
+    \end{subfigure}\\[1ex]
+    \begin{subfigure}{\linewidth}
+        \centering
+        {\input{img/microbench-f2fs-random.tex}}
+        \caption{Random I/O expanded F2FS result set.}\label{fig:microbench-f2fs-random}
+    \end{subfigure}
+    \caption{Test of the F2FS LFS mounted atop both dm-crypt and
+      StrongBox; median latency of different sized whole file read and
+      write operations normalized to unencrypted access. By harmonic
+      mean, StrongBox is $1.72\times$ faster than dm-crypt for sequential reads
+      and $1.27\times$ faster for sequential writes.}\label{fig:microbench-f2fs}
+\end{figure}
+
+\subsection{StrongBox Read Performance}
+
+\figref{microbench-f2fs} shows the performance of StrongBox in comparison to
+dm-crypt, both mounted with the F2FS filesystem. We see StrongBox improves on
+the performance of dm-crypt's AES-XTS implementation across sequential and
+random read operations on all file sizes. Specifically, $2.36\times$
+(53.05m/22.48m) for sequential 5GB, $2.07\times$ (2.09s/1.00s) for sequential
+40MB, $2.08\times$ (267.34ms/128.22ms) for sequential 5MB, $1.85\times$
+(28.30ms/15.33ms) for sequential 512KB, and $1.03\times$ (0.95ms/0.86ms) for
+sequential 4KB\@.
+
+\figref{microbench-gamut} provides an expanded performance profile for
+StrongBox, testing a gamut of filesystems broken down by workload file size. For
+sequential reads across all filesystems and file sizes, StrongBox outperforms
+dm-crypt. This is true even on the non-LFS Ext4 filesystems. Specifically, we
+see read performance improvements over dm-crypt AES-XTS for 40MB sequential
+reads of $2.02\times$ (2.15s/1.06s) for NILFS, $2.07\times$ (2.09s/1.00s) for
+F2FS, $2.09\times$ (2.11s/1.01s) for Ext4 in ordered journaling mode, and
+$2.06\times$ (2.11s/1.02s) for Ext4 in full journaling mode. For smaller file
+sizes, the performance improvement is less pronounced. For 4KB reads we see
+$1.28\times$ (1.62ms/1.26ms) for NILFS, $1.03\times$ (0.88ms/0.86ms) for F2FS,
+$1.04\times$ (0.95ms/0.92ms) for Ext4 in ordered journaling mode, and
+$1.07\times$ (0.97ms/0.91ms) for Ext4 in full journaling mode. When it comes to
+random reads, we see virtually identical results save for 4KB reads, where
+dm-crypt proved slightly more performant under the NILFS LFS at $1.12\times$
+(1.73ms/1.54ms). This behavior is not observed with the more modern F2FS\@.
+
+% \begin{figure*}[t]
+%     \textbf{StrongBox Four Filesystems Test}\par\medskip
+%     \centering
+%     \begin{subfigure}{0.5\linewidth}
+%         \centering
+%         {\input{img/microbench-gamut-sequential-r.tex}}
+%         \caption{Sequential reads.}
+%        \label{fig:microbench-gamut-sequential-r}
+%     \end{subfigure}\hspace*{0.5em}%
+%     \begin{subfigure}{0.5\linewidth}
+%         \centering
+%         {\input{img/microbench-gamut-sequential-w.tex}}
+%         \caption{Sequential writes.}
+%        \label{fig:microbench-gamut-sequential-w}
+%     \end{subfigure}\\[1ex]
+%     \hspace*{-0.9em}%
+%     \begin{subfigure}{0.5\linewidth}
+%         \vspace{0.5em}
+%         \centering
+%         {\input{img/microbench-gamut-random-r.tex}}
+%         \caption{Random reads.}
+%        \label{fig:microbench-gamut-random-r}
+%     \end{subfigure}%
+%     \begin{subfigure}{0.5\linewidth}
+%         \centering
+%         {\input{img/microbench-gamut-random-w.tex}}
+%         \caption{Random writes.}
+%        \label{fig:microbench-gamut-random-w}
+%     \end{subfigure}
+%     \caption{Comparison of four filesystems running on top of
+%       StrongBox performance is normalized to the same file system
+%       running on dm-crypt. Points below the line signify StrongBox
+%       outperforming dm-crypt. Points above the line signify dm-crypt
+%       outperforming StrongBox.}
+%    \label{fig:microbench-gamut}
+% \end{figure*}
+
+\begin{figure}[ht]
+    \textbf{StrongBox Four Filesystems Test}\par\medskip
+    \centering
+    \begin{subfigure}{0.5\linewidth}
+        \centering
+        {\input{img/microbench-gamut-sequential-r.tex}}
+        \caption{Sequential reads.}
+       \label{fig:microbench-gamut-sequential-r}
+    \end{subfigure}\hspace*{0.5em}%
+    \begin{subfigure}{0.5\linewidth}
+        \centering
+        {\input{img/microbench-gamut-sequential-w.tex}}
+        \caption{Sequential writes.}
+       \label{fig:microbench-gamut-sequential-w}
+    \end{subfigure}\\[1ex]
+    \hspace*{-0.9em}%
+    \begin{subfigure}{0.5\linewidth}
+        \vspace{0.5em}
+        \centering
+        {\input{img/microbench-gamut-random-r.tex}}
+        \caption{Random reads.}
+       \label{fig:microbench-gamut-random-r}
+    \end{subfigure}%
+    \begin{subfigure}{0.5\linewidth}
+        \centering
+        {\input{img/microbench-gamut-random-w.tex}}
+        \caption{Random writes.}
+       \label{fig:microbench-gamut-random-w}
+    \end{subfigure}
+    \caption{Comparison of four filesystems running on top of
+      StrongBox performance is normalized to the same file system
+      running on dm-crypt. Points below the line signify StrongBox
+      outperforming dm-crypt. Points above the line signify dm-crypt
+      outperforming StrongBox.}
+   \label{fig:microbench-gamut}
+\end{figure}
+
+\subsection{StrongBox Write Performance}
+
+\figref{microbench-f2fs} shows the performance of StrongBox in comparison to
+dm-crypt under the modern F2FS LFS broken down by workload file size. Similar to
+read performance under the F2FS, we see StrongBox improves on the performance of
+dm-crypt's AES-XTS implementation across sequential and random write operations
+on all file sizes. Hence, StrongBox under F2FS is holistically faster than
+dm-crypt under F2FS\@. Specifically, $1.55\times$ (1.80h/1.16h) for sequential
+5GB, $1.33\times$ (3.19s/2.39s) for sequential 40MB, $1.21\times$
+(412.51ms/341.56ms) for sequential 5MB, $1.15\times$ (65.23ms/56.63ms) for
+sequential 512KB, and $1.19\times$ (30.30ms/25.46ms) for sequential 4KB\@.
+
+\figref{microbench-gamut} provides an expanded performance profile for
+StrongBox, testing a gamut of filesystems broken down by workload file size.
+Unlike read performance, write performance under certain filesystems is more of
+a mixed bag. For 40MB sequential writes, StrongBox outperforms dm-crypt's
+AES-XTS implementation by $1.33\times$ (3.19s/2.39s) for F2FS and $1.18\times$
+(4.39s/3.74s) for NILFS\@. When it comes to Ext4, StrongBox's write performance
+drops precipitously with a $3.6\times$ \textit{slowdown} for both ordered
+journaling and full journaling modes (respectively: 12.64s/3.51s, 24.89s/6.88s).
+For non-LFS 4KB writes, the performance degradation is even more pronounced with
+a $8.09\times$ (118.48ms/14.65ms) slowdown for ordered journaling and
+$14.5\times$ (143.15ms/9.87ms) slowdown for full journaling.
+
+This slowdown occurs in Ext4 because, while writes in StrongBox from non-LFS
+filesystems have a metadata overhead that is comparable to that of forward
+writes in an LFS filesystem, Ext4 is not an append-only or append-mostly
+filesystem. This means that, at any time, Ext4 will initiate one or more
+overwrites anywhere on the drive (see \tblref{overwrites}). As described in
+\secref{design}, overwrites once detected trigger the rekeying process, which is
+a relatively expensive operation. Multiple overwrites compound this expense
+further. This makes Ext4 and other filesystems that do not exhibit at least
+append-mostly behavior unsuitable for use with StrongBox. We include it in our
+result set regardless to illustrate the drastic performance impact of frequent
+overwrites on StrongBox.
+
+For both sequential and random 4KB writes among the LFSes, the performance
+improvement over dm-crypt's AES-XTS implementation for LFSes deflates. For the
+more modern F2FS atop StrongBox, there is a $1.19\times$ (30.30ms/25.46ms)
+improvement. For the older NILFS filesystem atop StrongBox, there is a
+$2.38\times$ (27.19ms/11.44ms) slowdown. This is where we begin to see the
+overhead associated with tracking writes and detecting overwrites potentially
+becoming problematic, though the overhead is negligible depending on choice of
+LFS and workload characteristics.
+
+These results show that StrongBox is sensitive to the behavior of the LFS that
+is mounted atop it, and that any practical use of StrongBox would require an
+extra profiling step to determine which LFS works best with a specific workload.
+With the correct selection of LFS, such as F2FS for workloads dominated by small
+write operations, potential slowdowns when compared to mounting that same
+filesystem over dm-crypt's AES-XTS can be effectively mitigated.
+
+\subsection{On Replacing dm-crypt and Ext4}
+
+\begin{figure}[ht]
+    \textbf{StrongBox F2FS vs dm-crypt AES-XTS Ext4-OJ}\par\medskip
+    \begin{subfigure}{\linewidth}
+        \centering
+        {\input{img/microbench-ext4-sequential.tex}}
+        \caption{Sequential I/O F2FS vs Ext4 result set.}
+       \label{fig:microbench-ext4-sequential}
+    \end{subfigure}\\[1ex]
+    \begin{subfigure}{\linewidth}
+        \centering
+        {\input{img/microbench-ext4-random.tex}}
+        \caption{Random I/O F2FS vs Ext4 result set.}
+       \label{fig:microbench-ext4-random}
+    \end{subfigure}
+    \caption{Comparison of Ext4 on dm-crypt and F2FS on StrongBox.
+      Results are normalized to unencrypted Ext4 performance. Unecrypted F2FS
+      results are shown for reference. Points below the line are outperforming
+      unencrypted Ext4. Points above the line are underperforming compared
+      to unencrypted Ext4.}
+   \label{fig:microbench-ext4}
+\end{figure}
+
+\figref{microbench-ext4} describes the performance benefit of using StrongBox
+with F2FS over the popular dm-crypt with Ext4 in ordered journaling mode
+combination for both sequential and random read and write operations of various
+sizes. Other than 4KB and 512KB write operations, which are instances where
+baseline F2FS without StrongBox is simply slower than baseline Ext4 without
+dm-crypt, StrongBox with F2FS outperforms dm-crypt's AES-XTS implementation with
+Ext4.
+
+These results show that configurations taking advantage of the popular
+combination of dm-crypt, AES-XTS, and Ext4 could see a significant improvement
+in read performance without a degradation in write performance except in cases
+where small ($\leq512KB$) writes dominate the workload.
+
+Note, however, that several implicit assumptions exist in our design. For one,
+we presume there is ample memory at hand to house the Merkle Tree and all other
+data abstractions used by StrongBox. Efficient memory use was not a goal of our
+implementation of StrongBox. In an implementation aiming to be production ready,
+much more memory efficient data structures would be utilized.
+
+It is also for this reason that populating the Merkle Tree necessitates a rather
+lengthy mounting process. In our tests, a 1GB backing store on the odroid system
+can take as long as 15 seconds to mount.
+
+\subsection{Performance in StrongBox: ChaCha20 vs AES}
+\begin{figure}[t]
+    \textbf{ChaCha20 vs AES: StrongBox F2FS Sequential Test}\par\medskip
+    \centering
+    {\input{img/microbench-aes-vs-chacha.tex}}
+    \caption{Comparison of AES in XTS and CTR modes versus ChaCha20 in
+      StrongBox; median latency of different sized whole file
+      sequential read and write operations normalized to ChaCha20
+      (default cipher in StrongBox). Points below the line signify AES
+      outperforming ChaCha20. Points above the line signify ChaCha20
+      outperforming AES.}
+   \label{fig:microbench-aes-vs-chacha}
+\end{figure}
+\figref{microbench-gamut} and \figref{microbench-f2fs} give strong evidence for
+our general performance improvement over dm-crypt not being an artifact of
+filesystem choice. Excluding Ext4 as a non-LFS filesystem under which to run
+StrongBox, our tests show that StrongBox outperforms dm-crypt under an LFS
+filesystem in the vast majority of outcomes.
+
+We then test to see if our general performance improvement can be attributed to
+the use of a stream cipher over a block cipher. dm-crypt implements AES in XTS
+mode to provide full-drive encryption functionality.
+\figref{microbench-aes-vs-chacha} describes the relationship between ChaCha20,
+the cipher of choice for our implementation of StrongBox, and the AES cipher.
+Swapping out ChaCha20 for AES-CTR resulted in slowdowns of up to $1.33\times$
+for reads and $1.15\times$ for writes across all configurations, as described in
+\figref{microbench-aes-vs-chacha}.
+
+Finally, we test to see if our general performance improvement can be attributed
+to our implementation of StrongBox rather than our choice of stream cipher. We
+test this by implementing AES in XTS mode on top of StrongBox using OpenSSL EVP
+(see: \figref{microbench-aes-vs-chacha}). StrongBox using OpenSSL AES-XTS
+experiences slowdowns of up to $1.33\times$ for reads and $1.6\times$ for writes
+compared to StrongBox using ChaCha20 (sequential, 40MB). Interestingly, while
+significantly less performant, this slowdown is not entirely egregious, and
+suggests that perhaps there are parts of the dm-crypt code base that would
+benefit from further optimization; however, it is possible that necessary
+choices to harden StrongBox for a production environment could slow it down as
+well.
+
+Considering hardware support for dedicated AES instructions,
+\figref{microbench-aes-vs-chacha} shows StrongBox with AES-CTR outperforms
+AES-XTS. Therefore, StrongBox should still outperform dmcrypt where AES hardware
+support is available.
+
+\subsection{Overhead with a Full Drive}
+During I/O operations under an appropriate choice of LFS, we have shown that
+full-drive encryption provided by StrongBox outperforms full-drive encryption
+provided by dm-crypt. However, this is not necessarily the case when the backing
+store becomes full and the LFS is forced to cope with an inability to write
+forward as efficiently.
+
+In the case of the F2FS LFS, upon approaching capacity and being unable to
+perform garbage collection effectively, it resorts to writing blocks out to
+where ever it can find free space in the backing store~\cite{F2FS}. It does this
+instead of trying to maintain an append-only guarantee. This method of executing
+writes is similar to how a typical non-LFS filesystem operates. When this
+happens, the F2FS aggressively causes overwrites in StrongBox, which has a
+drastic impact on performance.
+
+\figref{microbench-f2fs-full} shows the impact of these (sequential) overwrites.
+Read operation performance remains faster on a full StrongBox backing store
+compared to dm-crypt. This is not the case with writes. Compared to StrongBox
+under non-full conditions, 40MB sequential writes were slowed by $2.8\times$ as
+StrongBox approached maximum capacity.
+
+\begin{figure}[ht]
+    \textbf{Near-Full Drive F2FS Test}\par\medskip
+    \centering
+    {\input{img/microbench-f2fs-full.tex}}
+    \caption{Comparison of F2FS baseline, atop dm-crypt, and atop
+      StrongBox. All configurations are initialized with a near-full
+      backing store; median latency of different sized whole file read
+      and write operations normalized to dm-crypt. Points below the
+      line are outperforming dm-crypt. Points above the line are
+      underperforming compared to dm-crypt.}
+   \label{fig:microbench-f2fs-full}
+\end{figure}
+
+\subsection{Threat Analysis}
+
+\tblref{security} lists possible attacks and their results. It can be inferred
+from these results and StrongBox's design that StrongBox addresses its threat
+model and maintains confidentiality and integrity guarantees.
+
+\begin{table}[t]
+  \caption{Attacks on StrongBox and their results}\label{tbl:security}
+  \footnotesize
+  \centering
+  \begin{tabu} to \linewidth { | X[l] | X[c] | X[c] | }
+    \hline
+    \textbf{Attack} & \textbf{Result} & \textbf{Explanation} \\
+    \hline\hline
+    Nugget user data in backing store is mutated out-of-band online & StrongBox Immediately fails with exception on successive IO request & The MTRH is inconsistent \\
+    \hline
+    Header metadata in backing store is mutated out-of-band online, making the MTRH inconsistent & StrongBox Immediately fails with exception on successive IO request & The MTRH is inconsistent \\
+    \hline
+    Backing store is rolled back to a previously consistent state while online & StrongBox Immediately fails with exception on successive IO request & TPMGLOBALVER and RPMB secure counter out of sync \\
+    \hline
+    Backing store is rolled back to a previously consistent state while offline, RPMB secure counter wildly out of sync & StrongBox refuses to mount; allows for force mount with root access & TPMGLOBALVER and RPMB secure counter out of sync \\
+    \hline
+    MTRH made inconsistent by mutating backing store out-of-band while offline, RPMB secure counter in sync & StrongBox refuses to mount & TPMGLOBALVER and RPMB secure counter are in sync, yet illegal data manipulation occurred \\
+    \hline\hline
+  \end{tabu}
+\end{table}

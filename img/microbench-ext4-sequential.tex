@@ -1,0 +1,120 @@
+\begin{tikzpicture}[baseline]
+
+% XXX: update 0
+\pgfmathsetmacro{\ymax}{3.5} % set the maximum y value
+\pgfmathsetmacro{\ymaxbreak}{3.575} % set the y value at which overflow is drawn
+
+\begin{groupplot}[
+    group style={
+        group name=plots,
+        group size=1 by 1,
+        xlabels at=edge top,
+        xticklabels at=edge top,
+        vertical sep=5pt
+    },
+    axis x line*=top,
+    xlabel near ticks,
+    major x tick style=transparent,
+    height=6cm,
+    width=\linewidth,
+    xmin=0, xmax=5,
+    % enlarge y limits={value=0.2,upper},
+    tick align=outside,
+    tick style={white},
+    ytick=\empty,
+    xtick=\empty,
+    xticklabels={},
+    yticklabels={},
+    % restrict y to domain*=0:2,
+    clip=false,
+]
+\nextgroupplot[
+    ylabel={\footnotesize Latency (normalized to Ext4)}, % XXX: update 1
+    ylabel shift={6mm},
+    ymin=0, ymax=1,
+]
+\end{groupplot}
+
+\begin{groupplot}[
+    group style={
+        group name=plots,
+        group size=1 by 1,
+        xlabels at=edge bottom,
+        xticklabels at=edge bottom,
+        vertical sep=5pt
+    },
+    axis x line*=bottom,
+    xlabel near ticks,
+    major x tick style=transparent,
+    height=6cm,
+    width=\linewidth,
+    %xmin=0, %xmax=2,
+    xlabel={\footnotesize File Size (bytes)},
+    symbolic x coords={4K,512K,5M,40M,Mean},
+    xtick=data,
+    enlarge x limits=0.125, % add some breathing room along the x axis's sides
+    extra y ticks={1},
+    extra y tick style={grid=major, grid style={dashed, black}},
+    extra y tick label={ 1 },
+    tick align=outside,
+    tick style={ black },
+    legend cell align=center,
+    legend style={ column sep=1ex },
+    ymajorgrids=true,
+    grid style={ dotted, gray },
+    every node near coord/.append style={font=\tiny},
+    % magic to make the numbers appear above the overly long bars:
+    visualization depends on={rawy \as \rawy}, % save original y values
+    restrict y to domain*={ % now clip/restrict any y value to ymax
+        \pgfkeysvalueof{/pgfplots/ymin}:\ymaxbreak
+    },
+    after end axis/.code={ % draw squiggly line indicating break
+        \draw [semithick, white, decoration={snake,amplitude=0.1mm,segment length=0.75mm,post length=0.375mm}, decorate] (rel axis cs:0,1.01) -- (rel axis cs:1,1.01);
+    },
+    nodes near coords={\color{.!75!black}\pgfmathprintnumber\rawy}, % print the original y values (darkened in case they're too light)...
+    nodes near coords greater equal only=\ymax, % ... but ONLY if they're >= ymax
+    clip=false, % allow clip to protrude beyond ymax
+    %
+    % Custom stuff to edit per template
+    % XXX: update 2
+    ymin=0.5, ymax=\ymax,
+    ytick={ 0.5, 1.5, 2, 2.5, 3.0, 3.5 },
+    yticklabels={ 0.5, 1.5, 2, 2.5, 3.0, 3.5 },
+]
+\nextgroupplot[
+    % XXX: update 3
+    ybar=1pt, % change space between bars
+    bar width=4.5pt, % change size of bars
+    legend entries={
+        {\scriptsize unencrypted F2FS/reads},
+        {\scriptsize StrongBox F2FS/reads},
+        {\scriptsize dm-crypt Ext4/reads},
+        {\scriptsize unencrypted F2FS/writes},
+        {\scriptsize StrongBox F2FS/writes},
+        {\scriptsize dm-crypt Ext4/writes},
+    },
+    legend style={
+        draw=none,
+        legend columns=3,
+        at={(0.46,1.3)},
+        anchor=north
+    },
+    clip=false
+]
+
+% XXX: update 4
+\addplot[fill=orangeLight, every node near coord/.append style={color=orangeLight}]
+table[x=size, y=uF2FSr, col sep=space] {img/microbench-ext4-sequential.dat};
+\addplot[fill=purpleDark, every node near coord/.append style={color=purpleDark}]
+table[x=size, y=uF2FSw, col sep=space] {img/microbench-ext4-sequential.dat};
+\addplot[fill=purpleLight, every node near coord/.append style={color=purpleLight}]
+table[x=size, y=sF2FSr, col sep=space] {img/microbench-ext4-sequential.dat};
+\addplot[draw=orangeLight, pattern=crosshatch, pattern color=orangeLight, every node near coord/.append style={color=orangeLight}]
+table[x=size, y=sF2FSw, col sep=space] {img/microbench-ext4-sequential.dat};
+\addplot[draw=purpleDark, pattern=crosshatch, pattern color=purpleDark, every node near coord/.append style={color=purpleDark}]
+table[x=size, y=dExt4r, col sep=space] {img/microbench-ext4-sequential.dat};
+\addplot[draw=purpleLight, pattern=crosshatch, pattern color=purpleLight, every node near coord/.append style={color=purpleLight}]
+table[x=size, y=dExt4w, col sep=space] {img/microbench-ext4-sequential.dat};
+
+\end{groupplot}%
+\end{tikzpicture}%

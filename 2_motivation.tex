@@ -1,0 +1,120 @@
+\section{Motivation}\label{sec:motivation}
+
+We detail the main motivations for StrongBox: stream ciphers' speed
+compared to AES-XTS and Log-structured File Systems' append-mostly
+nature. We then describe the challenges of replacing AES with a stream
+cipher.
+
+\subsection{Performance Potential}
+
+We demonstrate the potential performance win from switching to a stream cipher
+by comparing AES-XTS to ChaCha20+ Poly1305. We use an Exynos Octa processor with
+an ARM big.LITTLE architecture---the same processor used in the Samsung Galaxy
+line of phones. We encrypt and then decrypt 250MB of randomly generated bits 3
+times and take the median time for each of encryption and decryption.
+\figref{motivation} shows the distinct advantage of the stream cipher over
+AES---a consistent $2.7\times$ reduction in run time.
+
+\begin{figure}[t]
+  \input{img/heuristics-time.tex}
+\caption{AES-XTS and ChaCha20+Poly1305 Comparison.}\label{fig:motivation}
+\end{figure}
+
+\subsection{Append-mostly Filesystems}
+Of course, stream ciphers are not designed to encrypt data at rest.
+If we naively implement block device encryption with a stream cipher,
+overwriting the same memory location with the same key would trivially
+allow an attacker to recover the secret key. Thus we believe stream
+ciphers are best suited for encrypting block devices backing
+Log-structured File Systems (LFSes), as these filesystems are designed
+to append data to the end of a log rather than overwrite data. In
+practice, some overwrites occur; \eg in metadata, but they are small
+in number during normal execution.
+
+To demonstrate this fact, we write 800MB of random data directly to the backing
+store using four different file systems: Ext4, LogFS, NILFS, and F2FS. We count
+the number of total writes to the underlying block device and the number of
+times data is overwritten for each file system.
+
+
+\begin{table}[th]
+%\begin{wraptable}{r}{4cm}
+\caption{File System Overwrite Behavior}\label{tbl:overwrites}
+\footnotesize
+\centering
+\begin{tabular}{lrr}
+  \textbf{File System} & \textbf{Total Write Ops} & \textbf{Overwrites} \\
+  \hline
+  \hline
+  ext4    &  16,756 & 10,787\\
+  LogFS   &   4,244 &     32\\
+  NILFS   &   4,199 &     24\\
+  F2FS    &   2.107 &      2\\
+  \hline 
+  \hline
+\end{tabular}
+%\vskip -.7em
+%\end{wraptable}
+\end{table}
+
+\tblref{overwrites} shows the data for this experiment. Ext4 has the highest
+number of writes, but many of those are small writes for book-keeping purposes.
+Ext4 also has the largest number of overwrites. Almost 65\% of the writes are to
+a previously written location in the backing store. In contrast, all three
+Log-structured file systems have very few overwrites.
+
+\subsection{Threat Model}
+
+A stream cipher can be more than twice as fast as AES-XTS while providing the
+same confidentiality guarantee. The problem is that a stream cipher is not
+secure if the same key is used to overwrite the same storage location.
+Fortunately, FTLs and LFSes rarely overwrite the same location.
+
+We cannot, however, ignore the fact that overwrites do occur. While
+\tblref{overwrites} shows overwrites are rare during normal operation, we know
+they will occur when garbage collecting the LFS. Thus, we will need some
+metadata to track writes and ensure that data is handled securely if overwrites
+occur. Therefore, we recognize three key challenges to replacing AES with a
+stream cipher for FDE:
+
+\begin{itemize}
+
+\item Tracking writes to the block device to ensure that the same location is
+never overwritten with the same key.
+
+\item Ensuring that the metadata that tracks writes is secure and is not
+subject to leaks or rollback attacks.
+
+\item Accomplishing the above efficiently so that we maintain the  performance
+advantage of the stream cipher.
+
+\end{itemize}
+
+The key to StrongBox is using a secure, persistent counter supported in modern
+mobile hardware; \eg for limiting password attempts. This counter can track
+writes, and thus \emph{versions} of the encrypted data. If an attacker tried to
+\emph{roll back} the file system to overwrite the same location with the same
+key, our StrongBox detects that the local version number is out of sync with the
+global version number stored in the secure counter. In that case, StrongBox
+refuses to initialize and the attack fails. The use of the hardware-supported
+secure counter significantly raises the bar when it comes to rollback attacks,
+requiring a costly and non-discrete physical attack on the hardware itself to be
+effective. The actual structure of the metadata required to track writes and
+maintain integrity is significantly more complicated than simply implementing a
+counter and is the subject of the next section.
+
+An additional challenge is that of crash recovery. StrongBox relies on the
+overlying filesystem to manage data recovery in the event of a crash that leaves
+user data in an inconsistent state. StrongBox handles metadata recovery after a
+crash by giving the root user the option to accept the current metadata state as
+the new consistent state, \ie{``force mounting''}. This allows the root user to
+mount the filesystem and access data after an unexpected shutdown. An attacker
+might try to take advantage of this feature by modifying the backing store,
+forcing an inconsistent state, and hoping the root user will ignore it and force
+mount the system anyway. StrongBox defends against this attack by preventing
+force mounts when metadata state is wildly inconsistent with the global version
+counter. Otherwise, the root user is warned if they attempt a force mount. Thus,
+attacking StrongBox by forcing a crash can only be successful if the attacker
+also has root permission, in which case security is already compromised. Crash
+recovery is also detailed in the next section.
+

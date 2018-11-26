@@ -1,0 +1,4 @@
+ 
+number platform AESEnergy ChaChaEnergy AESTime ChaChaTime	   
+1 Encrypt 118.1 42.1 47 17
+2 Decrypt 99.8 40.0 43 16

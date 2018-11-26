@@ -1,0 +1,81 @@
+\section{Related Work} \label{sec:related}
+
+Some of the most popular cryptosystems offering a confidentiality
+guarantee for data at rest employ a symmetric encryption scheme known
+as a Tweakable Enciphering Scheme (TES)~\cite{STES,XEX}. There have
+been numerous TES-based constructions securing data at
+rest~\cite{STES,CMC,HCTR}, including the well known XEX-based XTS
+operating mode of AES~\cite{XTS} explored earlier in this work. Almost
+all TES constructions and the storage management systems that
+implement them use one or more block ciphers as their primary
+primitive~\cite{TES-From-Stream-Cipher,STES}.
+
+Our StrongBox implementation borrows from the design of these systems. One in
+particular is \emph{dm-crypt}, a Linux framework employing a
+\textit{LinuxDeviceMapper} to provide a virtual block interface for physical
+block devices. Dm-crypt provides an implementation of the AES-XTS algorithm among
+others and is used widely in the Linux ecosystem~\cite{DmC-Android, dmcrypt}.
+The algorithms provided by dm-crypt all employ block ciphers~\cite{dmcrypt}.
+Instead of a block cipher, however, StrongBox uses a stream cipher to provide
+the same confidentiality guarantee and consistent or better I/O performance.
+Further unlike dm-crypt and other similar virtualization frameworks, StrongBox's
+ciphering operations do not require sector level tweaks, depending on the
+implementation. With StrongBox, several physical blocks consisting of one or
+more sectors are considered as discrete logical units, \ie nuggets and flakes.
+
+Substituting a block cipher for a stream cipher forms the core of several
+contributions to the state-of-the-art~\cite{STES, TES-From-Stream-Cipher}.
+Chakraborty et al. proposed STES---a stream cipher based low cost scheme for
+securing stored data~\cite{STES}. STES is a novel TES which can be implemented
+compactly with low overall power consumption. It combines a stream cipher and a
+universal hash function via XOR and is targeting low cost FPGAs to provide
+confidentiality of data on USBs and SD cards. Our StrongBox, on the other hand,
+is not a TES and does not directly implement a TES. StrongBox combines a stream
+cipher with nonce ``tweak'' and nugget data via XOR and is targeting any
+configuration employing a well-behaved Log-structured Filesystem (LFS) at some
+level to provide confidentiality of data.
+
+Offering a transparent cryptographic layer at the block device level has been
+proposed numerous times~\cite{SBD}. Production implementations include storage
+management systems like dm-crypt. Specifically, Hein et al. proposed the Secure
+Block Device (SBD)~\cite{SBD}---an ARM TrustZone secure world transparent
+filesystem encryption layer optimized for ANDIX OS and implemented and evaluated
+using the Linux Network Block Device (NBD) driver. StrongBox is also implemented
+and evaluated using the NBD, but is not limited to one specific operating
+system. Further unlike StrongBox, SBD is not explicitly designed for use outside
+of the ARM TrustZone secure world. Contrarily, StrongBox was designed to be used
+on any system that provides a subset of functionality provided by a Trusted
+Platform Module (TPM) and/or Trusted Execution Environment (TEE). Specifically,
+StrongBox requires the availability of a dedicated hardware protected secure
+monotonic counter to prevent rollback attacks and ensure the freshness of
+StrongBox. The primary design goal of StrongBox is to achieve provide higher
+performance than the industry standard AES-XTS algorithm utilizing a stream
+cipher.
+
+StrongBox's design is only possible because of the availability of
+hardware support for security, which has been a major thrust of
+research efforts
+~\cite{asplos1,asplos2,asplos3,asplos4,isca1,isca2},
+and is now available in almost all commercial mobile processors
+~\cite{TPM,TEE,RPMB,Kirovski}. Our implementation makes use of the
+replay protected memory block on eMMC devices
+~\cite{eMMC-standard,RPMB}, but it could be reimplemented using any
+hardware that supports persistent, monotonic counters.
+
+The combination of trusted hardware and monotonic counters enables new
+security mechanisms. For example, van Dijk et al. use this
+combination allow clients to securly store data on an untrusted server
+~\cite{CSAIL-TPM}. Like StrongBox, their approach relies on trusted
+hardware (TPM specifically \cite{TPM}), logs, and monotonic counters.
+The van Dijk et al. approach, however, uses existing secure storage
+and is not concerned with storage speed. StrongBox uses these same
+mechanisms along with novel metadata layout and system design to solve
+a different problem: providing higher performance than AES-XTS based
+approaches.
+
+Achieving on-drive data integrity protection through the use of checksums has
+been used by filesystems and many other storage management systems. Examples
+include ZFS~\cite{ZFS} and others~\cite{SBD}. For our implementation of
+StrongBox, we used the Merkle Tree library offered by SBD to manage our
+in-memory checksum verification. A proper implementation of StrongBox need not
+use the SDB SHA-256 Merkle Tree library. It was chosen for convenience.

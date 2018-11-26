@@ -1,0 +1,12 @@
+{
+	"folders":
+	[
+		{
+			"file_exclude_patterns":
+			[
+				"asplos18-buselfs-paper.sublime-project"
+			],
+			"path": "."
+		}
+	]
+}

@@ -1,0 +1,81 @@
+\section{Introduction}\label{sec:introduction}
+
+Full-drive encryption (FDE)\footnote{The common term is full-\emph{disk}
+encryption, but this work targets SSDs, so we use \emph{drive}.} is an essential
+technique for protecting the privacy of data at rest. For mobile devices,
+maintaining data privacy is especially important as these devices contain
+sensitive personal and financial data yet are easily lost or stolen. The current
+standard for securing data at rest is to use the AES cipher in XTS
+mode~\shortcite{XTS, NISTXTS}. Unfortunately, employing AES-XTS increases
+read/write latency by 3--5$\times$ compared to unencrypted storage.
+
+It is well known that authenticated encryption using \emph{stream}
+ciphers---such as ChaCha20~\cite{ChaCha20}---is faster than using AES (see
+\figref{motivation}). Indeed, Google made the case for stream ciphers over AES,
+switching HTTPS connections on Chrome for Android to use a stream cipher for
+better performance~\cite{google-blog}. Stream ciphers are not used for FDE,
+however, for two reasons: (1) confidentiality and (2) performance. First, when
+applied naively to stored data, stream ciphers are trivially vulnerable to
+attacks---including \emph{many-time pad and rollback attacks}---that reveal the
+plaintext by overwriting a secure storage location with the same key. Second, it
+has been assumed that adding the meta-data required to resist these attacks
+would ruin the stream cipher's performance advantage. Thus, the conventional
+wisdom is that FDE necessarily incurs the overhead of AES-XTS or a similar
+primitive.
+
+We argue that two technological shifts in mobile device hardware overturn this
+conventional wisdom, enabling confidential, high-performance storage with stream
+ciphers. First, these devices commonly employ solid-state storage with Flash
+Translation Layers (FTL), which operate similarly to Log-structured File Systems
+(LFS)~\cite{LFS,F2FS,NILFS}. Second, mobile devices now support trusted
+hardware, such as Trusted Execution Environments (TEE)~\cite{TEE,TrustZone} and
+secure storage areas~\cite{eMMC-standard}. FTLs and LFSes are used to limit
+sector/cell overwrites, hence extending the life of the drive. Most writes
+simply appended to a log, reducing the occurrence of overwrites and the chance
+for attacks. The presence of secure hardware means that drive encryption modules
+have access to persistent, monotonically increasing counters that can be used to
+prevent rollback attacks when overwrites do occur.
+
+Given these trends, we propose StrongBox, a new method for securing data at
+rest. StrongBox is a drop-in replacement for AES-XTS-backed FDE such as
+dm-crypt~\cite{dmcrypt}; \ie it requires no interface changes. The primary
+challenge is that even with a FTL or LFS running above an SSD, filesystem blocks
+will occasionally be overwritten; \eg by segment cleaning or \emph{garbage
+collection}. StrongBox overcomes this challenge by using a fast stream cipher
+for confidentiality and performance with integrity preserving Message
+Authentication Codes~\cite{MAC} or ``MAC tags'' and a secure, persistent
+hardware counter to ensure integrity and prevent attacks. \emph{StrongBox's main
+contribution is a system design enabling the first confidential, high-
+performance drive encryption based on a stream cipher.}
+
+We demonstrate StrongBox's effectiveness on a mobile ARM big.LITTLE system---a
+Samsung Exynos Octa 5---running Ubuntu Trusty 14.04 LTS, kernel 3.10.58. We use
+ChaCha20~\cite{ChaCha20} as our stream cipher, Poly1305~\cite{Poly1305} as our
+MAC algorithm, and the eMMC Replay Protected Memory Block partition to store a
+secure counter \cite{eMMC-standard}. As StrongBox requires no change to any
+existing interfaces, we benchmark it on two of the most popular LFSes:
+NILFS~\cite{NILFS} and F2FS~\cite{F2FS}. We compare the performance of these
+LFSes on top of AES-XTS (via dm-crypt) and StrongBox. Additionally, we compare
+the performance of AES-XTS encrypted Ext4 filesystems with StrongBox and F2FS.
+Our results show:
+
+\begin{itemize}
+
+  \item \emph{Improved read performance:} StrongBox provides decreased read
+latencies across all tested filesystems in the majority of benchmarks when
+compared to dm-crypt; \eg under F2FS, StrongBox provides as much as a
+$2.36\times$ ($1.72\times$ average) speedup over AES-XTS\@.
+
+  \item \emph{Equivalent write performance:} despite having to maintain more
+metadata than FDE schemes based on AES-XTS, StrongBox achieves near parity or
+provides an improvement in observed write latencies in the majority of
+benchmarks; \eg under F2FS, StrongBox provides an average $1.27\times$ speedup
+over AES-XTS\@.
+
+\end{itemize}
+
+StrongBox achieves these performance gains while providing a stronger integrity
+guarantee than AES-XTS\@. Whereas XTS mode only hopes to randomize plaintext when
+the ciphertext is altered~\cite{XTS}, StrongBox provides the security of
+standard authenticated encryption. In addition, StrongBox's implementation is
+available open-source.\footnote{\StrongBoxURI}

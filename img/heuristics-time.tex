@@ -1,0 +1,84 @@
+\begin{tikzpicture}
+
+\begin{groupplot}[
+    group style={
+        group name=plots,
+        group size=1 by 1,
+        xlabels at=edge top,
+        xticklabels at=edge top,
+        vertical sep=5pt
+    },
+axis x line* = top,
+xlabel near ticks,
+major x tick style = transparent,
+height=3.5cm,
+%width=0.95\columnwidth,
+width=4.2cm,
+xmin=0,
+xmax=3,
+enlargelimits=false,
+tick align = outside,
+tick style={white},
+ytick=\empty,
+xtick=\empty,
+xticklabels={},
+yticklabels={},
+]
+\nextgroupplot[ylabel={\footnotesize Time (s)},
+ylabel shift={6mm},
+ymin=0,
+ymax=1,
+]
+
+
+\end{groupplot}
+
+\begin{groupplot}[
+    group style={
+        group name=plots,
+        group size=1 by 1,
+        xlabels at=edge bottom,
+        xticklabels at=edge bottom,
+        vertical sep=5pt
+    },
+axis x line* = bottom,
+xlabel near ticks,
+major x tick style = transparent,
+height=3.5cm,
+%width=0.95\columnwidth,
+width=4.2cm,
+xmin=0,
+xmax=3,
+enlargelimits=false,
+tick align = outside,
+tick style={white},
+ytick=\empty,
+xticklabel shift={-5pt},
+%x tick label style={rotate=0, anchor=south},
+%xlabel={\footnotesize $Platform$}
+xtick={1,2},
+xticklabels={{\scriptsize $\mathsf{Encrypt}$},
+{\scriptsize $\mathsf{Decrypt}$}},
+ymin=0,
+ymax=50,
+ytick={0,12.5,25,37.5,50},
+yticklabels={0,,25,,50},
+legend cell align=left, 
+legend style={ column sep=1ex },
+ymajorgrids,
+grid style={dashed},
+]
+\nextgroupplot[ybar=\pgflinewidth,
+bar width=5pt,
+legend entries = {{\scriptsize $\mathsf{AES-XTS}$},
+{\scriptsize $\mathsf{ChaCha+Poly1305}$}
+},
+legend style={draw=none,legend columns=2,at={(0.5,1.35)},anchor=north},
+]
+\addplot table[x index=0,y index=4, col sep=space] {img/heuristics2.txt};
+\addplot table[x index=0,y index=5, col sep=space] {img/heuristics2.txt};
+
+
+\end{groupplot}
+
+\end{tikzpicture}
