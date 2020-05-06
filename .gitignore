@@ -1,1 +1,10 @@
 out/
+_paper.aux
+_paper.auxlock
+_paper.bbl
+_paper.blg
+_paper.log
+_paper.out
+_paper.tex
+comment.cut
+texput.log
