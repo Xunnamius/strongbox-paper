@@ -1,0 +1,217 @@
+\relax 
+\providecommand\hyper@newdestlabel[2]{}
+\providecommand\HyperFirstAtBeginDocument{\AtBeginDocument}
+\HyperFirstAtBeginDocument{\ifx\hyper@anchor\@undefined
+\global\let\oldcontentsline\contentsline
+\gdef\contentsline#1#2#3#4{\oldcontentsline{#1}{#2}{#3}}
+\global\let\oldnewlabel\newlabel
+\gdef\newlabel#1#2{\newlabelxx{#1}#2}
+\gdef\newlabelxx#1#2#3#4#5#6{\oldnewlabel{#1}{{#2}{#3}}}
+\AtEndDocument{\ifx\hyper@anchor\@undefined
+\let\contentsline\oldcontentsline
+\let\newlabel\oldnewlabel
+\fi}
+\fi}
+\global\let\hyper@last\relax 
+\gdef\HyperFirstAtBeginDocument#1{#1}
+\providecommand\HyField@AuxAddToFields[1]{}
+\providecommand\HyField@AuxAddToCoFields[2]{}
+\citation{XTS,NISTXTS}
+\citation{ChaCha20}
+\citation{google-blog}
+\@LN@col{1}
+\providecommand \oddpage@label [2]{}
+\@writefile{toc}{\contentsline {section}{Abstract}{1}{section*.1}\protected@file@percent }
+\@LN@col{2}
+\@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}{section.1}\protected@file@percent }
+\newlabel{sec:introduction}{{1}{1}{Introduction}{section.1}{}}
+\citation{LFS,F2FS,NILFS}
+\citation{TEE,TrustZone}
+\citation{eMMC-standard}
+\citation{dmcrypt}
+\citation{MAC}
+\citation{ChaCha20}
+\citation{Poly1305}
+\citation{eMMC-standard}
+\citation{NILFS}
+\citation{F2FS}
+\citation{XTS}
+\@LN@col{1}
+\@LN@col{2}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces AES-XTS and ChaCha20+Poly1305 Comparison.\relax }}{2}{figure.caption.5}\protected@file@percent }
+\providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
+\newlabel{fig:motivation}{{1}{2}{AES-XTS and ChaCha20+Poly1305 Comparison.\relax }{figure.caption.5}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {2}Motivation}{2}{section.2}\protected@file@percent }
+\newlabel{sec:motivation}{{2}{2}{Motivation}{section.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Performance Potential}{2}{subsection.2.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Append-mostly Filesystems}{2}{subsection.2.2}\protected@file@percent }
+\citation{SSD}
+\@LN@col{1}
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces File System Overwrite Behavior\relax }}{3}{table.caption.6}\protected@file@percent }
+\newlabel{tbl:overwrites}{{1}{3}{File System Overwrite Behavior\relax }{table.caption.6}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.3}Threat Model}{3}{subsection.2.3}\protected@file@percent }
+\@LN@col{2}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Overview of the StrongBox construction.\relax }}{3}{figure.caption.7}\protected@file@percent }
+\newlabel{fig:overview}{{2}{3}{Overview of the StrongBox construction.\relax }{figure.caption.7}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {3}StrongBox System Design}{3}{section.3}\protected@file@percent }
+\newlabel{sec:design}{{3}{3}{StrongBox System Design}{section.3}{}}
+\@LN@col{1}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Layout of StrongBox's backing storage.\relax }}{4}{figure.caption.8}\protected@file@percent }
+\newlabel{fig:backstore}{{3}{4}{Layout of StrongBox's backing storage.\relax }{figure.caption.8}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Backing Store Function and Layout}{4}{subsection.3.1}\protected@file@percent }
+\@LN@col{2}
+\@LN@col{1}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Metadata-aware Cryptographic Driver}{5}{subsection.3.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.2.1}Transaction Journal}{5}{subsubsection.3.2.1}\protected@file@percent }
+\@LN@col{2}
+\@writefile{loa}{\contentsline {algorithm}{\numberline {1}{\ignorespaces StrongBox handling an incoming read request.\relax }}{5}{algorithm.1}\protected@file@percent }
+\newlabel{algo:read}{{1}{5}{StrongBox handling an incoming read request.\relax }{algorithm.1}{}}
+\@writefile{loa}{\contentsline {algorithm}{\numberline {2}{\ignorespaces StrongBox handling an incoming write request.\relax }}{5}{algorithm.2}\protected@file@percent }
+\newlabel{algo:write}{{2}{5}{StrongBox handling an incoming write request.\relax }{algorithm.2}{}}
+\@LN@col{1}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.2.2}Merkle Tree}{6}{subsubsection.3.2.2}\protected@file@percent }
+\newlabel{sec:merkle}{{3.2.2}{6}{Merkle Tree}{subsubsection.3.2.2}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.2.3}Keycount Store}{6}{subsubsection.3.2.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.2.4}Rekeying Procedure}{6}{subsubsection.3.2.4}\protected@file@percent }
+\@LN@col{2}
+\@writefile{loa}{\contentsline {algorithm}{\numberline {3}{\ignorespaces StrongBox rekeying process.\relax }}{6}{algorithm.3}\protected@file@percent }
+\newlabel{algo:rekeying}{{3}{6}{StrongBox rekeying process.\relax }{algorithm.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Defending Against Rollback Attacks}{6}{subsection.3.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.4}Recovering from Inconsistent State}{6}{subsection.3.4}\protected@file@percent }
+\citation{SBD}
+\citation{BUSE}
+\citation{eMMC-standard}
+\citation{RPMB}
+\citation{eMMC-standard}
+\citation{eMMC-standard,RPMB}
+\@LN@col{1}
+\@writefile{toc}{\contentsline {section}{\numberline {4}StrongBox Implementation}{7}{section.4}\protected@file@percent }
+\newlabel{sec:implementation}{{4}{7}{StrongBox Implementation}{section.4}{}}
+\@LN@col{2}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Deriving Subkeys}{7}{subsection.4.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}A Secure, Persistent, Monotonic Counter}{7}{subsection.4.2}\protected@file@percent }
+\citation{LFS,F2FS}
+\citation{F2FS}
+\citation{F2FS}
+\citation{F2FS,NILFS}
+\@LN@col{1}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}LFS Garbage Collection}{8}{subsection.4.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}Overhead}{8}{subsection.4.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {5}Evaluation}{8}{section.5}\protected@file@percent }
+\newlabel{sec:evaluation}{{5}{8}{Evaluation}{section.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Experimental Setup}{8}{subsection.5.1}\protected@file@percent }
+\@LN@col{2}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}Experimental Methodology}{8}{subsection.5.2}\protected@file@percent }
+\citation{LinuxDeviceMapper}
+\@LN@col{1}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}StrongBox Read Performance}{9}{subsection.5.3}\protected@file@percent }
+\@LN@col{2}
+\newlabel{fig:microbench-f2fs-sequential}{{4.a}{9}{Sequential I/O expanded F2FS result set.\relax }{figure.caption.9}{}}
+\newlabel{sub@fig:microbench-f2fs-sequential}{{4.a}{9}{Sequential I/O expanded F2FS result set.\relax }{figure.caption.9}{}}
+\newlabel{fig:microbench-f2fs-random}{{4.b}{9}{Random I/O expanded F2FS result set.\relax }{figure.caption.9}{}}
+\newlabel{sub@fig:microbench-f2fs-random}{{4.b}{9}{Random I/O expanded F2FS result set.\relax }{figure.caption.9}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Test of the F2FS LFS mounted atop both dm-crypt and StrongBox; median latency of different sized whole file read and write operations normalized to unencrypted access. By harmonic mean, StrongBox is $1.72\times $ faster than dm-crypt for sequential reads and $1.27\times $ faster for sequential writes.\relax }}{9}{figure.caption.9}\protected@file@percent }
+\newlabel{fig:microbench-f2fs}{{4}{9}{Test of the F2FS LFS mounted atop both dm-crypt and StrongBox; median latency of different sized whole file read and write operations normalized to unencrypted access. By harmonic mean, StrongBox is $1.72\times $ faster than dm-crypt for sequential reads and $1.27\times $ faster for sequential writes.\relax }{figure.caption.9}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.4}StrongBox Write Performance}{9}{subsection.5.4}\protected@file@percent }
+\@LN@col{1}
+\newlabel{fig:microbench-gamut-sequential-r}{{5.a}{10}{Sequential reads.\relax }{figure.caption.10}{}}
+\newlabel{sub@fig:microbench-gamut-sequential-r}{{5.a}{10}{Sequential reads.\relax }{figure.caption.10}{}}
+\newlabel{fig:microbench-gamut-sequential-w}{{5.b}{10}{Sequential writes.\relax }{figure.caption.10}{}}
+\newlabel{sub@fig:microbench-gamut-sequential-w}{{5.b}{10}{Sequential writes.\relax }{figure.caption.10}{}}
+\newlabel{fig:microbench-gamut-random-r}{{5.c}{10}{Random reads.\relax }{figure.caption.10}{}}
+\newlabel{sub@fig:microbench-gamut-random-r}{{5.c}{10}{Random reads.\relax }{figure.caption.10}{}}
+\newlabel{fig:microbench-gamut-random-w}{{5.d}{10}{Random writes.\relax }{figure.caption.10}{}}
+\newlabel{sub@fig:microbench-gamut-random-w}{{5.d}{10}{Random writes.\relax }{figure.caption.10}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Comparison of four filesystems running on top of StrongBox performance is normalized to the same file system running on dm-crypt. Points below the line signify StrongBox outperforming dm-crypt. Points above the line signify dm-crypt outperforming StrongBox.\relax }}{10}{figure.caption.10}\protected@file@percent }
+\newlabel{fig:microbench-gamut}{{5}{10}{Comparison of four filesystems running on top of StrongBox performance is normalized to the same file system running on dm-crypt. Points below the line signify StrongBox outperforming dm-crypt. Points above the line signify dm-crypt outperforming StrongBox.\relax }{figure.caption.10}{}}
+\@LN@col{2}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.5}On Replacing dm-crypt and Ext4}{10}{subsection.5.5}\protected@file@percent }
+\@LN@col{1}
+\newlabel{fig:microbench-ext4-sequential}{{6.a}{11}{Sequential I/O F2FS vs Ext4 result set.\relax }{figure.caption.11}{}}
+\newlabel{sub@fig:microbench-ext4-sequential}{{6.a}{11}{Sequential I/O F2FS vs Ext4 result set.\relax }{figure.caption.11}{}}
+\newlabel{fig:microbench-ext4-random}{{6.b}{11}{Random I/O F2FS vs Ext4 result set.\relax }{figure.caption.11}{}}
+\newlabel{sub@fig:microbench-ext4-random}{{6.b}{11}{Random I/O F2FS vs Ext4 result set.\relax }{figure.caption.11}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Comparison of Ext4 on dm-crypt and F2FS on StrongBox. Results are normalized to unencrypted Ext4 performance. Unecrypted F2FS results are shown for reference. Points below the line are outperforming unencrypted Ext4. Points above the line are underperforming compared to unencrypted Ext4.\relax }}{11}{figure.caption.11}\protected@file@percent }
+\newlabel{fig:microbench-ext4}{{6}{11}{Comparison of Ext4 on dm-crypt and F2FS on StrongBox. Results are normalized to unencrypted Ext4 performance. Unecrypted F2FS results are shown for reference. Points below the line are outperforming unencrypted Ext4. Points above the line are underperforming compared to unencrypted Ext4.\relax }{figure.caption.11}{}}
+\@LN@col{2}
+\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces Comparison of AES in XTS and CTR modes versus ChaCha20 in StrongBox; median latency of different sized whole file sequential read and write operations normalized to ChaCha20 (default cipher in StrongBox). Points below the line signify AES outperforming ChaCha20. Points above the line signify ChaCha20 outperforming AES.\relax }}{11}{figure.caption.12}\protected@file@percent }
+\newlabel{fig:microbench-aes-vs-chacha}{{7}{11}{Comparison of AES in XTS and CTR modes versus ChaCha20 in StrongBox; median latency of different sized whole file sequential read and write operations normalized to ChaCha20 (default cipher in StrongBox). Points below the line signify AES outperforming ChaCha20. Points above the line signify ChaCha20 outperforming AES.\relax }{figure.caption.12}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.6}Performance in StrongBox: ChaCha20 vs AES}{11}{subsection.5.6}\protected@file@percent }
+\citation{F2FS}
+\citation{STES,XEX}
+\citation{STES,CMC,HCTR}
+\citation{XTS}
+\citation{TES-From-Stream-Cipher,STES}
+\citation{DmC-Android,dmcrypt}
+\citation{dmcrypt}
+\@LN@col{1}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.7}Overhead with a Full Drive}{12}{subsection.5.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.8}Threat Analysis}{12}{subsection.5.8}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {6}Related Work}{12}{section.6}\protected@file@percent }
+\newlabel{sec:related}{{6}{12}{Related Work}{section.6}{}}
+\@LN@col{2}
+\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces Comparison of F2FS baseline, atop dm-crypt, and atop StrongBox. All configurations are initialized with a near-full backing store; median latency of different sized whole file read and write operations normalized to dm-crypt. Points below the line are outperforming dm-crypt. Points above the line are underperforming compared to dm-crypt.\relax }}{12}{figure.caption.13}\protected@file@percent }
+\newlabel{fig:microbench-f2fs-full}{{8}{12}{Comparison of F2FS baseline, atop dm-crypt, and atop StrongBox. All configurations are initialized with a near-full backing store; median latency of different sized whole file read and write operations normalized to dm-crypt. Points below the line are outperforming dm-crypt. Points above the line are underperforming compared to dm-crypt.\relax }{figure.caption.13}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Attacks on StrongBox and their results\relax }}{12}{table.caption.14}\protected@file@percent }
+\newlabel{tbl:security}{{2}{12}{Attacks on StrongBox and their results\relax }{table.caption.14}{}}
+\citation{STES,TES-From-Stream-Cipher}
+\citation{STES}
+\citation{SBD}
+\citation{SBD}
+\citation{asplos1,asplos2,asplos3,asplos4,isca1,isca2}
+\citation{TPM,TEE,RPMB,Kirovski}
+\citation{eMMC-standard,RPMB}
+\citation{CSAIL-TPM}
+\citation{TPM}
+\citation{ZFS}
+\citation{SBD}
+\@LN@col{1}
+\@LN@col{2}
+\@writefile{toc}{\contentsline {section}{\numberline {7}Conclusion}{13}{section.7}\protected@file@percent }
+\newlabel{sec:conclusion}{{7}{13}{Conclusion}{section.7}{}}
+\@writefile{toc}{\contentsline {section}{Acknowledgments}{13}{section*.16}\protected@file@percent }
+\bibstyle{ACM-Reference-Format}
+\bibdata{refs}
+\bibcite{DmC-Android}{{1}{[n. d.]}{{DmC}}{{??}}}
+\bibcite{LinuxDeviceMapper}{{2}{[n. d.]}{{Lin}}{{??}}}
+\bibcite{ZFS}{{3}{2005}{{ZFS}}{{??}}}
+\bibcite{XTS}{{4}{2008}{{XTS}}{{??}}}
+\bibcite{NISTXTS}{{5}{2010}{{NIS}}{{??}}}
+\bibcite{MAC}{{6}{2011}{{MAC}}{{??}}}
+\bibcite{BUSE}{{7}{2012}{{BUS}}{{??}}}
+\bibcite{dmcrypt}{{8}{2013}{{dmc}}{{??}}}
+\bibcite{google-blog}{{9}{2014}{{goo}}{{??}}}
+\bibcite{eMMC-standard}{{10}{2015}{{eMM}}{{??}}}
+\bibcite{Poly1305}{{11}{2005}{{Bernstein}}{{Bernstein}}}
+\bibcite{ChaCha20}{{12}{2008}{{Bernstein}}{{Bernstein}}}
+\bibcite{STES}{{13}{2015}{{Chakraborty et~al\unhbox \voidb@x \hbox {.}}}{{Chakraborty, Mancillas-L\IeC {\'o}pez, and Sarkar}}}
+\bibcite{SSD}{{14}{2012}{{Cornwell}}{{Cornwell}}}
+\bibcite{asplos1}{{15}{2017}{{Ferraiuolo et~al\unhbox \voidb@x \hbox {.}}}{{Ferraiuolo, Xu, Zhang, Myers, and Suh}}}
+\bibcite{TPM}{{16}{2008}{{Group}}{{Group}}}
+\bibcite{CMC}{{17}{2003}{{Halevi and Rogaway}}{{Halevi and Rogaway}}}
+\bibcite{SBD}{{18}{2015}{{Hein et~al\unhbox \voidb@x \hbox {.}}}{{Hein, Winter, and Fitzek}}}
+\bibcite{asplos3}{{19}{2015}{{Hicks et~al\unhbox \voidb@x \hbox {.}}}{{Hicks, Sturton, King, and Smith}}}
+\bibcite{Kirovski}{{20}{2002}{{Kirovski et~al\unhbox \voidb@x \hbox {.}}}{{Kirovski, Drini\'{c}, and Potkonjak}}}
+\bibcite{NILFS}{{21}{2006}{{Konishi et~al\unhbox \voidb@x \hbox {.}}}{{Konishi, Amagai, Sato, Hifumi, Kihara, and Moriai}}}
+\bibcite{F2FS}{{22}{2015}{{Lee et~al\unhbox \voidb@x \hbox {.}}}{{Lee, Sim, Hwang, and Cho}}}
+\bibcite{asplos4}{{23}{2014}{{Li et~al\unhbox \voidb@x \hbox {.}}}{{Li, Kashyap, Oberg, Tiwari, Rajarathinam, Kastner, Sherwood, Hardekopf, and Chong}}}
+\bibcite{TrustZone}{{24}{2009}{{Limited}}{{Limited}}}
+\bibcite{RPMB}{{25}{2015}{{Reddy et~al\unhbox \voidb@x \hbox {.}}}{{Reddy, Paramasivam, and Vemula}}}
+\bibcite{XEX}{{26}{2004}{{Rogaway}}{{Rogaway}}}
+\bibcite{LFS}{{27}{1992}{{Rosenblum and Ousterhout}}{{Rosenblum and Ousterhout}}}
+\bibcite{TES-From-Stream-Cipher}{{28}{2009}{{Sarkar}}{{Sarkar}}}
+\bibcite{TEE}{{29}{2010}{{Technology}}{{Technology}}}
+\bibcite{isca2}{{30}{2011}{{Tiwari et~al\unhbox \voidb@x \hbox {.}}}{{Tiwari, Oberg, Li, Valamehr, Levin, Hardekopf, Kastner, Chong, and Sherwood}}}
+\bibcite{isca1}{{31}{2012}{{Valamehr et~al\unhbox \voidb@x \hbox {.}}}{{Valamehr, Chase, Kamara, Putnam, Shumow, Vaikuntanathan, and Sherwood}}}
+\bibcite{CSAIL-TPM}{{32}{2007}{{van Dijk et~al\unhbox \voidb@x \hbox {.}}}{{van Dijk, Rhodes, Sarmenta, and Devadas}}}
+\bibcite{HCTR}{{33}{2005}{{Wang et~al\unhbox \voidb@x \hbox {.}}}{{Wang, Feng, and Wu}}}
+\bibcite{asplos2}{{34}{2017}{{Zhang et~al\unhbox \voidb@x \hbox {.}}}{{Zhang, Stanley, Griggs, Chi, and Sturton}}}
+\newlabel{tocindent-1}{0pt}
+\newlabel{tocindent0}{0pt}
+\newlabel{tocindent1}{4.65pt}
+\newlabel{tocindent2}{11.49998pt}
+\newlabel{tocindent3}{18.34998pt}
+\@LN@col{1}
+\@writefile{toc}{\contentsline {section}{References}{14}{section*.18}\protected@file@percent }
+\@LN@col{2}
+\newlabel{TotPages}{{14}{14}{}{page.14}{}}
